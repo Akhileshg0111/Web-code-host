@@ -238,13 +238,13 @@
 class HTMLCompiler {
     constructor() {
         this.firebaseConfig = {
-            apiKey: "AIzaSyA8uC71uUIxCrmI5Rfm3WIe08uknDGk2xM",
-  authDomain: "code-compiler-1.firebaseapp.com",
-  databaseURL: "https://code-compiler-1-default-rtdb.firebaseio.com",
-  projectId: "code-compiler-1",
-  storageBucket: "code-compiler-1.firebasestorage.app",
-  messagingSenderId: "779001738729",
-  appId: "1:779001738729:web:0b1bdd8960439b2ad50778"
+            apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
         };
 
         this.sessionId = this.getSessionIdFromUrl() || this.generateSessionId();
@@ -2022,13 +2022,7 @@ Return ONLY the complete HTML code wrapped in \`\`\`html syntax. No explanations
     'use strict';
     
     const FIREBASE_CONFIG = {
-        apiKey: "AIzaSyA8uC71uUIxCrmI5Rfm3WIe08uknDGk2xM",
-        authDomain: "code-compiler-1.firebaseapp.com",
-        databaseURL: "https://code-compiler-1-default-rtdb.firebaseio.com",
-        projectId: "code-compiler-1",
-        storageBucket: "code-compiler-1.firebasestorage.app",
-        messagingSenderId: "779001738729",
-        appId: "1:779001738729:web:0b1bdd8960439b2ad50778"
+        //firebase cred
     };
 
     let auth = null;
