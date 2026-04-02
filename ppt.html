@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projectile PPT - Enhanced</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #f5f1eb;
+    --cream-dark: #ede8e0;
+    --cream-mid: #e8e2d8;
+    --ink: #1a1612;
+    --ink-soft: #3d342b;
+    --ink-muted: #7a6e63;
+    --ink-ghost: #b8ada0;
+    --strip: #1e1b17;
+    --strip-hover: #2e2a24;
+    --accent: #8b5e3c;
+    --accent-warm: #c4894a;
+    --accent-glow: rgba(139,94,60,0.15);
+    --border: rgba(0,0,0,0.08);
+    --shadow: 0 2px 16px rgba(26,22,18,0.12);
+  }
+
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+  }
+
+  .app {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    width: 100vw; height: 100vh;
+    overflow: hidden;
+  }
+
+  .strip {
+    background: var(--strip);
+    display: flex; align-items: center; gap: 0;
+    height: 58px; flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .strip-brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 24px;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    height: 100%;
+  }
+
+  .strip-logo {
+    width: 28px; height: 28px;
+    border: 1.5px solid var(--accent-warm);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .strip-logo svg { display: block; }
+
+  .strip-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .strip-name span {
+    color: var(--accent-warm);
+  }
+
+  .strip-controls {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 20px; flex: 1;
+  }
+
+  .strip-input {
+    flex: 1; min-width: 0;
+    height: 34px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    color: rgba(255,255,255,0.88);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.83rem;
+    font-weight: 300;
+    padding: 0 14px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .strip-input::placeholder { color: rgba(255,255,255,0.3); }
+  .strip-input:focus {
+    border-color: var(--accent-warm);
+    background: rgba(255,255,255,0.09);
+  }
+
+  .strip-select {
+    height: 34px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    color: rgba(255,255,255,0.75);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    padding: 0 10px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s;
+    white-space: nowrap;
+  }
+
+  .strip-select:focus { border-color: var(--accent-warm); }
+
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+    font-size: 0.6rem; color: rgba(255,255,255,0.4);
+    pointer-events: none;
+  }
+  .select-wrap .strip-select { padding-right: 24px; }
+
+  .gen-btn {
+    height: 34px;
+    background: var(--accent);
+    border: none; color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0 20px; border-radius: 5px;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    transition: background 0.2s, opacity 0.2s, transform 0.1s;
+  }
+  .gen-btn:hover:not(:disabled) { background: var(--accent-warm); }
+  .gen-btn:active:not(:disabled) { transform: scale(0.97); }
+  .gen-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .strip-divider {
+    width: 1px; height: 30px;
+    background: rgba(255,255,255,0.07);
+    flex-shrink: 0; margin: 0 4px;
+  }
+
+  .status-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 12px; height: 100%;
+    border-left: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+  }
+
+  .status-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.3s;
+  }
+  .status-dot.active {
+    background: var(--accent-warm);
+    animation: pulse 1s ease infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .status-txt {
+    font-size: 0.68rem; color: rgba(255,255,255,0.38);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .main-body {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .sidebar {
+    background: var(--cream-dark);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px 8px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--cream-mid); border-radius: 2px; }
+
+  .sidebar-empty {
+    display: flex; align-items: center; justify-content: center;
+    flex: 1; min-height: 80px;
+    color: var(--ink-ghost);
+    font-size: 0.62rem; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  .thumb {
+    border: 1.5px solid transparent;
+    border-radius: 5px; 
+    cursor: pointer; 
+    position: relative;
+    aspect-ratio: 16/9; 
+    background: #2a2a2a;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    flex-shrink: 0;
+    overflow: hidden;
+    width: 100%;
+  }
+  
+  .thumb:hover { 
+    border-color: var(--accent); 
+    transform: translateY(-1px); 
+  }
+  
+  .thumb.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+  
+  .thumb-iframe-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .thumb iframe {
+    width: 1280px; 
+    height: 720px;
+    transform: scale(0.115); 
+    transform-origin: top left;
+    pointer-events: none; 
+    border: none; 
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #fff;
+  }
+  
+  .thumb-num {
+    position: absolute; 
+    bottom: 4px; 
+    right: 6px;
+    font-size: 0.55rem; 
+    color: #3d342b;
+    background: rgba(245,241,235,0.92);
+    padding: 2px 6px; 
+    border-radius: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    z-index: 10;
+    line-height: 1.2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .thumb-loading {
+    width: 100%; 
+    height: 100%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: var(--cream-mid);
+  }
+  
+  .spinner {
+    width: 16px; 
+    height: 16px;
+    border: 2px solid var(--cream);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  
+  @keyframes spin { 
+    to { transform: rotate(360deg); } 
+  }
+
+  .preview-area {
+    display: flex; flex-direction: column;
+    overflow: hidden; background: var(--cream);
+  }
+
+  .preview-bar {
+    display: flex; align-items: center;
+    gap: 12px; padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0; background: var(--cream);
+  }
+
+  .slide-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.78rem; color: var(--ink-muted);
+    font-style: italic; flex: 1;
+  }
+
+  .nav-group { display: flex; gap: 5px; }
+
+  .nav-btn {
+    width: 30px; height: 30px;
+    background: var(--cream-dark);
+    border: 1px solid var(--border);
+    color: var(--ink-soft); border-radius: 5px;
+    cursor: pointer; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; line-height: 1;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+  .use-btn, .export-btn {
+    height: 30px; padding: 0 16px;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    border-radius: 5px; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .use-btn:hover:not(:disabled), .export-btn:hover:not(:disabled) { 
+    background: var(--accent); color: #fff; 
+  }
+  .use-btn:disabled, .export-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+  .export-btn {
+    background: var(--accent);
+    color: #fff;
+  }
+  .export-btn:hover:not(:disabled) {
+    background: var(--accent-warm);
+  }
+
+  .preview-canvas {
+    flex: 1; 
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+    padding: 20px; 
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 60%, var(--cream-dark) 0%, var(--cream) 100%);
+  }
+
+  .preview-frame {
+    position: relative; 
+    width: 100%; 
+    height: 100%;
+    max-width: 1280px;
+    max-height: 720px;
+    aspect-ratio: 16/9;
+    border-radius: 6px; 
+    overflow: hidden;
+    box-shadow:
+      0 2px 4px rgba(26,22,18,0.06),
+      0 12px 48px rgba(26,22,18,0.14),
+      0 0 0 1px rgba(26,22,18,0.07);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .preview-frame iframe {
+    width: 100%; 
+    height: 100%; 
+    border: none; 
+    display: block;
+  }
+
+  .empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    width: 100%; height: 100%; gap: 16px;
+  }
+
+  .empty-icon {
+    width: 64px; height: 64px; opacity: 0.18;
+  }
+
+  .empty-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.95rem; font-style: italic;
+    color: var(--ink-muted); letter-spacing: 0.03em;
+  }
+
+  .empty-sub {
+    font-size: 0.7rem; color: var(--ink-ghost);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  .err-banner {
+    font-size: 0.68rem; color: var(--accent);
+    margin-left: auto; font-weight: 400;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="strip">
+    <div class="strip-brand">
+      <div class="strip-logo">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="1" width="12" height="9" rx="1" stroke="#c4894a" stroke-width="1.2" fill="none"/>
+          <path d="M4 13h6M7 10v3" stroke="#c4894a" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="strip-name">Projectile <span>PPT</span></span>
+    </div>
+
+    <div class="strip-controls">
+      <input class="strip-input" type="text" id="pptPrompt" placeholder="What is your presentation about?" />
+
+      <div class="select-wrap">
+        <select class="strip-select" id="pptCount">
+          <option value="3">3 Slides</option>
+          <option value="4">4 Slides</option>
+          <option value="5" selected>5 Slides</option>
+          <option value="6">6 Slides</option>
+          <option value="7">7 Slides</option>
+          <option value="8">8 Slides</option>
+          <option value="10">10 Slides</option>
+        </select>
+      </div>
+
+      <div class="select-wrap">
+        <select class="strip-select" id="pptTheme">
+          <option value="clean">Clean</option>
+          <option value="bold">Bold</option>
+          <option value="dark">Dark</option>
+          <option value="gradient">Gradient</option>
+          <option value="minimal">Minimal</option>
+        </select>
+      </div>
+
+      <button class="gen-btn" id="pptGen">Generate</button>
+    </div>
+
+    <div class="status-pill">
+      <div class="status-dot" id="pptDot"></div>
+      <span class="status-txt" id="pptStatus">Ready</span>
+      <span class="err-banner" id="pptErr"></span>
+    </div>
+  </div>
+
+  <div class="main-body">
+
+    <div class="sidebar" id="pptSidebar">
+      <div class="sidebar-empty" id="sidebarEmpty">No slides yet</div>
+    </div>
+
+    <div class="preview-area">
+      <div class="preview-bar">
+        <span class="slide-label" id="pptLabel">—</span>
+        <div class="nav-group">
+          <button class="nav-btn" id="pptPrev" disabled>‹</button>
+          <button class="nav-btn" id="pptNext" disabled>›</button>
+        </div>
+        <button class="export-btn" id="pptExportPPT" disabled>Export PPT</button>
+        <button class="use-btn" id="pptUse" disabled></button>
+      </div>
+
+      <div class="preview-canvas">
+        <div class="preview-frame" id="pptBox">
+          <div class="empty-state">
+            <svg class="empty-icon" viewBox="0 0 64 64" fill="none" stroke="#8b5e3c" stroke-width="1.4">
+              <rect x="4" y="8" width="56" height="38" rx="3"/>
+              <path d="M22 58h20M32 46v12"/>
+            </svg>
+            <span class="empty-label">Choose a template and enter a topic</span>
+            <span class="empty-sub">AI will generate your slides</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="ppt-2.js"></script>
+</body>
+</html>
